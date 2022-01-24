@@ -9,10 +9,6 @@ import pathlib
 import subprocess
 import tarfile
 
-# workaround for https://github.com/gradio-app/gradio/issues/483
-command = 'pip install -U gradio==2.7.0'
-subprocess.call(command.split())
-
 try:
     import detectron2
 except:
