@@ -30,8 +30,12 @@ from detectron2.data.detection_utils import read_image
 from detectron2.engine.defaults import DefaultPredictor
 from detectron2.utils.visualizer import Visualizer
 
-TOKEN = os.environ['TOKEN']
+ORIGINAL_REPO_URL = 'https://github.com/zymk9/Yet-Another-Anime-Segmenter'
+TITLE = 'zymk9/Yet-Another-Anime-Segmenter'
+DESCRIPTION = f'A demo for {ORIGINAL_REPO_URL}'
+ARTICLE = None
 
+TOKEN = os.environ['TOKEN']
 MODEL_REPO = 'hysts/Yet-Another-Anime-Segmenter'
 MODEL_FILENAME = 'SOLOv2.pth'
 CONFIG_FILENAME = 'SOLOv2.yaml'
@@ -119,11 +123,6 @@ def main():
     func = functools.partial(predict, model=model)
     func = functools.update_wrapper(func, predict)
 
-    repo_url = 'https://github.com/zymk9/Yet-Another-Anime-Segmenter'
-    title = 'zymk9/Yet-Another-Anime-Segmenter'
-    description = f'A demo for {repo_url}'
-    article = None
-
     gr.Interface(
         func,
         [
@@ -143,11 +142,11 @@ def main():
             gr.outputs.Image(label='Instances'),
             gr.outputs.Image(label='Masked'),
         ],
-        theme=args.theme,
-        title=title,
-        description=description,
-        article=article,
         examples=examples,
+        title=TITLE,
+        description=DESCRIPTION,
+        article=ARTICLE,
+        theme=args.theme,
         allow_screenshot=args.allow_screenshot,
         allow_flagging=args.allow_flagging,
         live=args.live,
