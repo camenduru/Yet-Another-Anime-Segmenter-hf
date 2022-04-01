@@ -9,17 +9,13 @@ import pathlib
 import subprocess
 import tarfile
 
-try:
-    import detectron2
-except:
-    command = 'pip install git+https://github.com/facebookresearch/detectron2@v0.6'
-    subprocess.call(command.split())
-
-try:
-    import adet
-except:
-    command = 'pip install git+https://github.com/aim-uofa/AdelaiDet@7bf9d87'
-    subprocess.call(command.split())
+if os.environ.get('SYSTEM') == 'spaces':
+    subprocess.call(
+        'pip install git+https://github.com/facebookresearch/detectron2@v0.6'.
+        split())
+    subprocess.call(
+        'pip install git+https://github.com/aim-uofa/AdelaiDet@7bf9d87'.split(
+        ))
 
 import gradio as gr
 import huggingface_hub
