@@ -28,7 +28,7 @@ from detectron2.utils.visualizer import Visualizer
 
 TITLE = 'zymk9/Yet-Another-Anime-Segmenter'
 DESCRIPTION = 'This is an unofficial demo for https://github.com/zymk9/Yet-Another-Anime-Segmenter.'
-ARTICLE = None
+ARTICLE = '<center><img src="https://visitor-badge.glitch.me/badge?page_id=hysts.yet-another-anime-segmenter" alt="visitor badge"/></center>'
 
 TOKEN = os.environ['TOKEN']
 MODEL_REPO = 'hysts/Yet-Another-Anime-Segmenter'
