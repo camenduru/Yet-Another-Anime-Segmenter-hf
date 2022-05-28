@@ -103,8 +103,6 @@ def predict(image, class_score_threshold: float, mask_score_threshold: float,
 
 
 def main():
-    gr.close_all()
-
     args = parse_args()
     device = torch.device(args.device)
 
