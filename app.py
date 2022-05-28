@@ -26,9 +26,8 @@ from detectron2.data.detection_utils import read_image
 from detectron2.engine.defaults import DefaultPredictor
 from detectron2.utils.visualizer import Visualizer
 
-ORIGINAL_REPO_URL = 'https://github.com/zymk9/Yet-Another-Anime-Segmenter'
 TITLE = 'zymk9/Yet-Another-Anime-Segmenter'
-DESCRIPTION = f'A demo for {ORIGINAL_REPO_URL}'
+DESCRIPTION = 'This is an unofficial demo for https://github.com/zymk9/Yet-Another-Anime-Segmenter.'
 ARTICLE = None
 
 TOKEN = os.environ['TOKEN']
