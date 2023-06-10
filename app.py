@@ -10,11 +10,11 @@ import subprocess
 import tarfile
 
 if os.getenv('SYSTEM') == 'spaces':
-    subprocess.call(
+    subprocess.run(
         shlex.split(
             'pip install git+https://github.com/facebookresearch/detectron2@v0.6'
         ))
-    subprocess.call(
+    subprocess.run(
         shlex.split(
             'pip install git+https://github.com/aim-uofa/AdelaiDet@7bf9d87'))
 
@@ -27,13 +27,9 @@ from detectron2.data.detection_utils import read_image
 from detectron2.engine.defaults import DefaultPredictor
 from detectron2.utils.visualizer import Visualizer
 
-TITLE = 'Yet-Another-Anime-Segmenter'
-DESCRIPTION = 'This is an unofficial demo for https://github.com/zymk9/Yet-Another-Anime-Segmenter.'
+DESCRIPTION = '# [Yet-Another-Anime-Segmenter](https://github.com/zymk9/Yet-Another-Anime-Segmenter)'
 
-HF_TOKEN = os.getenv('HF_TOKEN')
-MODEL_REPO = 'hysts/Yet-Another-Anime-Segmenter'
-MODEL_FILENAME = 'SOLOv2.pth'
-CONFIG_FILENAME = 'SOLOv2.yaml'
+MODEL_REPO = 'public-data/Yet-Another-Anime-Segmenter'
 
 
 def load_sample_image_paths() -> list[pathlib.Path]:
@@ -42,20 +38,15 @@ def load_sample_image_paths() -> list[pathlib.Path]:
         dataset_repo = 'hysts/sample-images-TADNE'
         path = huggingface_hub.hf_hub_download(dataset_repo,
                                                'images.tar.gz',
-                                               repo_type='dataset',
-                                               use_auth_token=HF_TOKEN)
+                                               repo_type='dataset')
         with tarfile.open(path) as f:
             f.extractall()
     return sorted(image_dir.glob('*'))
 
 
 def load_model(device: torch.device) -> DefaultPredictor:
-    config_path = huggingface_hub.hf_hub_download(MODEL_REPO,
-                                                  CONFIG_FILENAME,
-                                                  use_auth_token=HF_TOKEN)
-    model_path = huggingface_hub.hf_hub_download(MODEL_REPO,
-                                                 MODEL_FILENAME,
-                                                 use_auth_token=HF_TOKEN)
+    config_path = huggingface_hub.hf_hub_download(MODEL_REPO, 'SOLOv2.yaml')
+    model_path = huggingface_hub.hf_hub_download(MODEL_REPO, 'SOLOv2.pth')
     cfg = get_cfg()
     cfg.merge_from_file(config_path)
     cfg.MODEL.WEIGHTS = model_path
@@ -90,28 +81,34 @@ examples = [[path.as_posix(), 0.1, 0.5] for path in image_paths]
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 model = load_model(device)
 
-func = functools.partial(predict, model=model)
+fn = functools.partial(predict, model=model)
 
-gr.Interface(
-    fn=func,
-    inputs=[
-        gr.Image(label='Input', type='filepath'),
-        gr.Slider(label='Class Score Threshold',
-                  minimum=0,
-                  maximum=1,
-                  step=0.05,
-                  value=0.1),
-        gr.Slider(label='Mask Score Threshold',
-                  minimum=0,
-                  maximum=1,
-                  step=0.05,
-                  default=0.5),
-    ],
-    outputs=[
-        gr.Image(label='Instances'),
-        gr.Image(label='Masked'),
-    ],
-    examples=examples,
-    title=TITLE,
-    description=DESCRIPTION,
-).queue().launch(show_api=False)
+with gr.Blocks(css='style.css') as demo:
+    gr.Markdown(DESCRIPTION)
+    with gr.Row():
+        with gr.Column():
+            image = gr.Image(label='Input', type='filepath')
+            class_score_threshold = gr.Slider(label='Score Threshold',
+                                              minimum=0,
+                                              maximum=1,
+                                              step=0.05,
+                                              value=0.1)
+            mask_score_threshold = gr.Slider(label='Mask Score Threshold',
+                                             minimum=0,
+                                             maximum=1,
+                                             step=0.05,
+                                             value=0.5)
+            run_button = gr.Button('Run')
+        with gr.Column():
+            result_instances = gr.Image(label='Instances')
+            result_masked = gr.Image(label='Masked')
+
+    inputs = [image, class_score_threshold, mask_score_threshold]
+    outputs = [result_instances, result_masked]
+    gr.Examples(examples=examples,
+                inputs=inputs,
+                outputs=outputs,
+                fn=fn,
+                cache_examples=os.getenv('CACHE_EXAMPLES') == '1')
+    run_button.click(fn=fn, inputs=inputs, outputs=outputs, api_name='predict')
+demo.queue(max_size=15).launch()
